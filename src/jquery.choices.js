@@ -40,7 +40,9 @@
 /*global jQuery */
 
 (function($) {
-  var handlers = {
+  var all_pulldowns = [], handlers;
+
+  handlers = {
     field: {
       mousedown: function () {
 	var field    = $(this),
@@ -87,8 +89,7 @@
 	}, 100);
       }
     }
-  },
-  all_pulldowns = [];
+  };
 
   $.fn.extend({
     addPulldown: function (pulldown) {
