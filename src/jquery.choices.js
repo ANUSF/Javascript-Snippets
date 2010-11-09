@@ -57,7 +57,13 @@
 	  $(this).css({ display: 'none' });
 	});
 	pulldown.each(function () {
-	  $(this).css({ display: 'block', left: field.position().left });
+	  $(this)
+	    .data('field', field)
+	    .css({ display:  'block',
+		   position: 'absolute',
+		   left:     field.position().left,
+		   top:      field.position().bottom
+		 });
 	});
       },
       blur: function () {
@@ -85,6 +91,7 @@
         var pulldown = $(this),
 	    field    = $(pulldown.data('field'));
 	setTimeout(function() {
+	  pulldown.data('field', null).css({ display: 'none' });
 	  field.val(pulldown.val()).trigger('keyup');
 	}, 100);
       }
@@ -96,7 +103,7 @@
       return this.each(function () {
 	all_pulldowns.push(pulldown);
 	$(this).data('pulldown', pulldown.get(0)).bind(handlers.field);
-	pulldown.data('field', this).bind(handlers.pulldown);
+	pulldown.bind(handlers.pulldown);
       });
     }
   });
