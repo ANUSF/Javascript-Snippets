@@ -51,6 +51,7 @@
       },
       focus: function () {
 	var field    = $(this),
+	    pos      = field.position(),
 	    pulldown = $(field.data('pulldown'));
 
 	$(all_pulldowns).each(function () {
@@ -61,31 +62,30 @@
 	    .data('field', field)
 	    .css({ display:  'block',
 		   position: 'absolute',
-		   left:     field.position().left,
-		   top:      field.position().bottom
-		 });
+		   left:     pos.left,
+		   top:      pos.bottom });
 	});
       },
       blur: function () {
-       var field    = $(this),
-           pulldown = $(field.data('pulldown'));
-       setTimeout(function() {
-         if ($("*:focus").attr('id') !== pulldown.attr('id')) {
-           pulldown.css({ display: 'none' });
-         }
-       }, 100);
+	var field    = $(this),
+            pulldown = $(field.data('pulldown'));
+	setTimeout(function() {
+	  if ($("*:focus").attr('id') !== pulldown.attr('id')) {
+            pulldown.css({ display: 'none' });
+          }
+	}, 100);
       },
       keyup: function () {
-       var field    = $(this),
-           pulldown = $(field.data('pulldown'));
-       setTimeout(function() {
-         pulldown.css({ display: 'none' });
-       }, 100);
+	var field    = $(this),
+            pulldown = $(field.data('pulldown'));
+	setTimeout(function() {
+	  pulldown.css({ display: 'none' });
+	}, 100);
       }
     },
     pulldown: {
       blur: function () {
-       $(this).css({ display: 'none' });
+	$(this).css({ display: 'none' });
       },
       click: function () {
         var pulldown = $(this),
@@ -101,8 +101,11 @@
   $.fn.extend({
     addPulldown: function (pulldown) {
       return this.each(function () {
-	all_pulldowns.push(pulldown);
-	$(this).data('pulldown', pulldown.get(0)).bind(handlers.field);
+	var pulldown_element = pulldown.get(0);
+	if ($.inArray(pulldown_element, all_pulldowns) < 0) {
+	  all_pulldowns.push(pulldown_element);
+	}
+	$(this).data('pulldown', pulldown_element).bind(handlers.field);
 	pulldown.bind(handlers.pulldown);
       });
     }
