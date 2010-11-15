@@ -58,7 +58,7 @@
 /*global jQuery */
 
 (function($) {
-  var patterns = {
+  var default_patterns = {
     header: '> ul',
     entry:  '> ul > li',
     body:   '> div',
@@ -70,6 +70,7 @@
         selected  = $(ref),
 	container = $(selected.data('container')),
 	options   = container.data('options') || {},
+	patterns  = container.data('patterns') || default_patterns,
 	tag_class = options.current_tab_class || 'current-tab';
 
     container.find(patterns.body).css({ display: 'none' });
@@ -96,8 +97,13 @@
       return this.each(function () {
 	var node = this,
 	    base = $(this),
-	    tags = (options || {}).tags_to_propagate || [];
+	    tags = (options || {}).tags_to_propagate || [],
+	    patterns = {};
+
+	$.extend(patterns, default_patterns);
+	$.extend(patterns, (options || {}).patterns || {});
 	base.data('options', options || {});
+	base.data('patterns', patterns);
 	base.find(patterns.body).data('container', node);
 	base.find(patterns.header).css({ display: 'block' });
 	base.find(patterns.entry)

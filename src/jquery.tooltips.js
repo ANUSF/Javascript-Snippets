@@ -22,12 +22,13 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * Prettier tooltips via Javascript and jQuery. Tooltip texts are
- * specified via the usual 'title' attribute.
+/*
+ * Prettier tooltips via Javascript and jQuery.
  *
- * Usage example:
- *     $('*').nicerTooltips();
+ * To nap the tooltips from the title attributes, do:
+ *     $('*[title]').each(function () {
+ *       $(this).addTooltip($(this).attr('title')).removeAttr('title');
+ *     });
  *
  * Styling example:
  *     #tooltip {
@@ -54,28 +55,29 @@
     return { left: left, top:  top };
   }
 
-  $.fn.nicerTooltips = function() {
-    this.find('*[title]').each(function() {
-      $(this).data('tipText', $(this).attr('title')).removeAttr('title');
-    }).hover(function(e) {
-      var tipText = $(this).data('tipText'),
-	  tooltip = $('#tooltip').first();
-      if (tipText !== null && tipText.length > 0) {
-	tooltip
-	  .stop(true, true)
-	  .css('display', 'none')
-	  .text(tipText)
-	  .css(tooltip_css(tooltip, e.pageX, e.pageY))
-	  .delay(1000)
-	  .fadeIn('slow');
-      }
-    }, function() {
-      $('#tooltip').stop(true, true).fadeOut('fast');
-    }).click(function() {
-      $('#tooltip').stop(true, true).fadeOut('fast');
-    }).mousemove(function(e) {
-      var tooltip = $('#tooltip');
-      tooltip.css(tooltip_css(tooltip, e.pageX, e.pageY));
+  $.fn.addTooltip = function(text) {
+    return this.each(function () {
+      $(this)
+	.data('tipText', text)
+	.hover(
+	  function(e) {
+	    var tipText = $(this).data('tipText'),
+	        tooltip = $('#tooltip').first();
+	    if (tipText !== null && tipText.length > 0) {
+	      tooltip
+		.stop(true, true)
+		.css('display', 'none')
+		.text(tipText)
+		.css(tooltip_css(tooltip, e.pageX, e.pageY))
+		.delay(1000)
+		.fadeIn('slow');
+	    }},
+	  function() { $('#tooltip').stop(true, true).fadeOut('fast'); })
+	.click(function() { $('#tooltip').stop(true, true).fadeOut('fast'); })
+	.mousemove(function(e) {
+	  var tooltip = $('#tooltip');
+	  tooltip.css(tooltip_css(tooltip, e.pageX, e.pageY));
+	});
     });
   };
 
