@@ -44,14 +44,9 @@
 
   handlers = {
     field: {
-      mousedown: function () {
-	var field    = $(this),
-	    pulldown = $(field.data('pulldown'));
-	pulldown.toggle();
-      },
       focus: function () {
 	var field    = $(this),
-	    pos      = field.position(),
+	    pos      = field.offset(),
 	    pulldown = $(field.data('pulldown'));
 
 	$(all_pulldowns).each(function () {
@@ -61,19 +56,20 @@
 	  $(this)
 	    .data('field', field)
 	    .css({ display:  'block',
-		   position: 'absolute',
+		   position: 'fixed',
 		   left:     pos.left,
-		   top:      pos.bottom });
+		   top:      pos.top + field.outerHeight()
+		             - $(window).scrollTop() });
 	});
       },
       blur: function () {
-	var field    = $(this),
+      	var field    = $(this),
             pulldown = $(field.data('pulldown'));
-	setTimeout(function() {
-	  if ($("*:focus").attr('id') !== pulldown.attr('id')) {
+      	setTimeout(function() {
+      	  if (!$("*:focus").is('.active-pulldown, .has-pulldown')) {
             pulldown.css({ display: 'none' });
           }
-	}, 100);
+      	}, 100);
       },
       keyup: function () {
 	var field    = $(this),
@@ -84,15 +80,12 @@
       }
     },
     pulldown: {
-      blur: function () {
-	$(this).css({ display: 'none' });
-      },
       click: function () {
         var pulldown = $(this),
 	    field    = $(pulldown.data('field'));
 	setTimeout(function() {
 	  pulldown.data('field', null).css({ display: 'none' });
-	  field.val(pulldown.val()).trigger('keyup');
+	  field.val(pulldown.val()).trigger('keyup').trigger('blur');
 	}, 100);
       }
     }
@@ -104,8 +97,12 @@
 	var pulldown_element = pulldown.get(0);
 	if ($.inArray(pulldown_element, all_pulldowns) < 0) {
 	  all_pulldowns.push(pulldown_element);
+	  pulldown.addClass('active-pulldown');
 	}
-	$(this).data('pulldown', pulldown_element).bind(handlers.field);
+	$(this)
+	  .addClass('has-pulldown')
+	  .data('pulldown', pulldown_element)
+	  .bind(handlers.field);
 	pulldown.bind(handlers.pulldown);
       });
     }
