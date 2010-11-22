@@ -80,21 +80,24 @@
         id       = elem.attr('id'),
         name     = elem.attr('name'),
 	n        = parseInt(id.match(/\d+/), 10) + 1,
-	checkbox = $('<input type="checkbox" checked=""/>');
+	hidden   = $('<input type="hidden" value="0"/>'),
+	checkbox = $('<input type="checkbox" checked="" value="1"/>');
 
     new_elem
       .attr('value', '')
       .attr('id', id.replace(/\d+/, n))
       .attr('name', name.replace(/\d+/, n))
       .removeClass('dirty');
+    hidden
+      .attr('name', name.replace(/\[[^\[\]]*\]$/, '[use]'));
     checkbox
-      .attr('value', '1')
       .attr('name', name.replace(/\[[^\[\]]*\]$/, '[use]'))
       .attr('id', id.replace(/_[^_]*$/, '_use'));
     elem
       .addClass('dirty')
       .css({ display: 'none' })
       .after('<p/>').next()
+      .append(hidden)
       .append(checkbox)
       .append(elem.val().replace(/^.*[\/\\]/, ''))
       .after(new_elem);
