@@ -42,51 +42,41 @@
 (function($) {
   var all_pulldowns = [], handlers;
 
+  function hide_all_pulldowns() {
+    $(all_pulldowns).each(function () {
+      $(this).css({ display: 'none' });
+    });
+  }
+
   handlers = {
     field: {
+      click: function () {
+	return false;
+      },
       focus: function () {
 	var field    = $(this),
 	    pos      = field.offset(),
-	    pulldown = $(field.data('pulldown'));
+	    left     = pos.left,
+	    top      = pos.top + field.outerHeight() - $(window).scrollTop();
 
-	$(all_pulldowns).each(function () {
-	  $(this).css({ display: 'none' });
-	});
-	pulldown.each(function () {
+	hide_all_pulldowns();
+	$(field.data('pulldown')).each(function () {
 	  $(this)
 	    .data('field', field)
-	    .css({ display:  'block',
-		   position: 'fixed',
-		   left:     pos.left,
-		   top:      pos.top + field.outerHeight()
-		             - $(window).scrollTop() });
+	    .css({ display: 'block', left: left, top: top });
 	});
-      },
-      blur: function () {
-      	var field    = $(this),
-            pulldown = $(field.data('pulldown'));
-      	setTimeout(function() {
-      	  if (!$("*:focus").is('.active-pulldown, .has-pulldown')) {
-            pulldown.css({ display: 'none' });
-          }
-      	}, 100);
+	return false;
       },
       keyup: function () {
-	var field    = $(this),
-            pulldown = $(field.data('pulldown'));
-	setTimeout(function() {
-	  pulldown.css({ display: 'none' });
-	}, 100);
+	$($(this).data('pulldown')).css({ display: 'none' });
       }
     },
     pulldown: {
-      click: function () {
-        var pulldown = $(this),
-	    field    = $(pulldown.data('field'));
-	setTimeout(function() {
-	  pulldown.data('field', null).css({ display: 'none' });
-	  field.val(pulldown.val()).trigger('keyup').trigger('blur');
-	}, 100);
+      click: function (event) {
+        var target = $(event.target),
+	    text   = target.hasClass('empty') ? '' : target.text();
+	$($(this).data('field')).val(text).trigger('keyup');
+	return false;
       }
     }
   };
@@ -97,14 +87,19 @@
 	var pulldown_element = pulldown.get(0);
 	if ($.inArray(pulldown_element, all_pulldowns) < 0) {
 	  all_pulldowns.push(pulldown_element);
-	  pulldown.addClass('active-pulldown');
 	}
 	$(this)
-	  .addClass('has-pulldown')
 	  .data('pulldown', pulldown_element)
 	  .bind(handlers.field);
-	pulldown.bind(handlers.pulldown);
+	pulldown
+	  .bind(handlers.pulldown)
+	  .addClass('pulldown')
+	  .appendTo('body');
       });
     }
+  });
+
+  $(document).ready(function() {
+    $('body').click(hide_all_pulldowns);
   });
 }(jQuery));
