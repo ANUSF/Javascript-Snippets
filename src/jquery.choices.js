@@ -48,22 +48,27 @@
     });
   }
 
+  function set_position(pulldown) {
+    var field = $(pulldown.data('field')),
+        pos   = field.offset();
+    if (pos) {
+      pulldown.css({ left: pos.left, top: pos.top + field.outerHeight() });
+    }
+  }
+
   handlers = {
     field: {
       click: function () {
 	return false;
       },
       focus: function () {
-	var field    = $(this),
-	    pos      = field.offset(),
-	    left     = pos.left,
-	    top      = pos.top + field.outerHeight() - $(window).scrollTop();
+	var field    = $(this);
 
 	hide_all_pulldowns();
 	$(field.data('pulldown')).each(function () {
-	  $(this)
-	    .data('field', field)
-	    .css({ display: 'block', left: left, top: top });
+	  $(this).data('field', field).css({ position: 'absolute',
+					     display: 'block' });
+	  set_position($(this));
 	});
 	return false;
       },
