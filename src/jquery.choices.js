@@ -98,7 +98,6 @@
 	  .bind(handlers.field);
 	pulldown
 	  .bind(handlers.pulldown)
-	  .addClass('pulldown')
 	  .appendTo('body');
       });
     }
