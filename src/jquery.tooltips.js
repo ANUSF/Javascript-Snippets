@@ -25,6 +25,15 @@
 /*
  * Prettier tooltips via Javascript and jQuery.
  *
+ * To enable tooltips, do:
+ *
+ *     $(document).enableTooltips();
+ *
+ * To use a different id for the tooltip element than the default
+ * 'tooltip', do:
+ *
+ *     $(document).enableTooltips({ tooltip_id: 'my-tip' });
+ *
  * To nap the tooltips from the title attributes, do:
  *     $('*[title]').each(function () {
  *       $(this).addTooltip($(this).attr('title')).removeAttr('title');
@@ -44,46 +53,64 @@
 /*global jQuery, window */
 
 (function($) {
-  function tooltip_css(tooltip, mouse_x, mouse_y) {
-    var win  = $(window),
-        left = Math.min(mouse_x + 20, win.width() - tooltip.outerWidth()),
-        top  = Math.min(mouse_y + 10,
-		        win.height() + win.scrollTop() - tooltip.outerHeight());
-    if (mouse_x + 20 > left && mouse_y + 10 > top) {
-      left = mouse_x - tooltip.outerWidth() - 20;
-    }
-    return { left: left, top:  top };
+  var tooltip_id, handlers;
+
+  tooltip_id = 'tooltip';
+
+  function find_tooltip() {
+    return $('#' + tooltip_id);
   }
 
-  $.fn.addTooltip = function(text) {
-    return this.each(function () {
-      $(this)
-	.data('tipText', text)
-	.hover(
-	  function(e) {
-	    var tipText = $(this).data('tipText'),
-	        tooltip = $('#tooltip').first();
-	    if (tipText !== null && tipText.length > 0) {
-	      tooltip
-		.stop(true, true)
-		.css('display', 'none')
-		.text(tipText)
-		.css(tooltip_css(tooltip, e.pageX, e.pageY))
-		.delay(1000)
-		.fadeIn('slow');
-	    }},
-	  function() { $('#tooltip').stop(true, true).fadeOut('fast'); })
-	.click(function() { $('#tooltip').stop(true, true).fadeOut('fast'); })
-	.mousemove(function(e) {
-	  var tooltip = $('#tooltip');
-	  tooltip.css(tooltip_css(tooltip, e.pageX, e.pageY));
-	});
-    });
+  function hide_tooltip() {
+    find_tooltip().stop(true, true).fadeOut('fast');
+  }
+
+  handlers = {
+    target: {
+      mouseenter: function (e) {
+	var tipText = $(this).data('tipText');
+	if (tipText !== null && tipText.length > 0) {
+	  find_tooltip()
+	    .stop(true, true)
+	    .css('display', 'none')
+	    .text(tipText)
+	    .delay(1000)
+	    .fadeIn('slow');
+	}
+      },
+      mouseleave: hide_tooltip,
+      mousedown: hide_tooltip,
+      keydown: hide_tooltip
+    },
+    body: {
+      mousemove: function (e) {
+	var win      = $(window),
+	    tooltip  = find_tooltip(),
+	    max_left = win.width() - tooltip.outerWidth(),
+	    max_top  = win.height() + win.scrollTop() - tooltip.outerHeight(),
+	    left     = Math.min(e.pageX + 20, max_left),
+            top      = Math.min(e.pageY + 10, max_top);
+
+	if (e.pageX + 20 > left && e.pageY + 10 > top) {
+	  left = e.pageX - tooltip.outerWidth() - 20;
+	}
+	tooltip.css({ left: left, top: top });
+      }
+    }
   };
 
-  $(document).ready(function() {
-    $('<p id="tooltip"/>')
-      .css({ display: 'none', position: 'absolute' })
-      .appendTo('body');
+  $.fn.extend({
+    addTooltip: function(text) {
+      return this.each(function () {
+	$(this).data('tipText', text).bind(handlers.target);
+      });
+    },
+    enableTooltips: function(options) {
+      tooltip_id = (options || {}).tooltip_id || "tooltip";
+      $('<p id="' + tooltip_id + '"/>')
+	.css({ display: 'none', position: 'absolute' })
+	.appendTo('body');
+      $('body').bind(handlers.body);
+    }
   });
 }(jQuery));
