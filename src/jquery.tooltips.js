@@ -53,7 +53,7 @@
 /*global jQuery, window */
 
 (function($) {
-  var tooltip_id, handlers;
+  var tooltip_id, fade_in_delay, handlers;
 
   tooltip_id = 'tooltip';
 
@@ -74,7 +74,7 @@
 	    .stop(true, true)
 	    .css('display', 'none')
 	    .text(tipText)
-	    .delay(1000)
+	    .delay(fade_in_delay)
 	    .fadeIn('slow');
 	}
       },
@@ -107,6 +107,7 @@
     },
     enableTooltips: function(options) {
       tooltip_id = (options || {}).tooltip_id || "tooltip";
+      fade_in_delay = (options || {}).delay || 3000;
       $('<p id="' + tooltip_id + '"/>')
 	.css({ display: 'none', position: 'absolute' })
 	.appendTo('body');
