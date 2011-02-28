@@ -1,6 +1,6 @@
 /*
  * Author: Olaf Delgado-Friedrichs (odf@github.com)
- * Copyright (c) 2010 ANU
+ * Copyright (c) 2011 The Australian National University
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
